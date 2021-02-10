@@ -24,6 +24,15 @@ public class bit_test {
         else
             System.out.println("XOR failed! :(");
 
+        if (testNot())
+            System.out.println("NOT Passed!");
+        else
+            System.out.println("NOT failed! :(");
+
+        if (testToString())
+            System.out.println("ToString Passed!");
+        else
+            System.out.println("ToString failed! :(");
     }
     
     public static boolean testSetClearToggle(){
@@ -66,6 +75,18 @@ public class bit_test {
         if (new Bit(1).xor(new Bit(0)).getValue() != 1) return false;
         if (new Bit(1).xor(new Bit(1)).getValue() != 0) return false;
 
+        return true;
+    }
+    public static boolean testNot(){
+        if (new Bit(0).not().getValue() != 1) return false;
+        if (new Bit(1).not().getValue() != 0) return false;
+
+        return true;
+    }
+
+    public static boolean testToString(){
+        if (! new Bit(0).toString().equalsIgnoreCase("0")) return false;
+        if (! new Bit(1).toString().equalsIgnoreCase("1")) return false;
         return true;
     }
 }
