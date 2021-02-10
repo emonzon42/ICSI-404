@@ -11,7 +11,7 @@ public class Bit implements IBit {
     }
 
     public void set(int value) {
-        if (value < 0 || value > 1)
+        if (value != 0)
             bit = 1;
         else
             bit = value;
@@ -27,9 +27,46 @@ public class Bit implements IBit {
 
     public void toggle() {
         if (bit == 1)
-            set(0);
+            clear();
         else
-            set(1);
+            set();
+    }
+
+    public int getValue(){
+        return bit;
+    }
+
+    public Bit and(Bit b){
+        if (bit == 1 && b.getValue() == 1)
+            return new Bit(1);
+        else
+            return new Bit(0);
+    }
+
+    public Bit or(Bit b){
+        if (bit == 0 && b.getValue() == 0)
+            return new Bit(0);
+        else
+            return new Bit(1);
+    }
+
+    public Bit xor(Bit b){
+        if ((bit == 1 && b.getValue() == 0 )|| (bit == 0 && b.getValue() == 1))
+            return new Bit(1);
+        else
+            return new Bit(0);
+    }
+
+    public Bit not(){
+        if (bit == 0)
+            return new Bit(1);
+        else
+            return new Bit(0);
+    }
+
+    @Override 
+    public String toString(){
+        return Integer.toString(bit);
     }
 
 }
