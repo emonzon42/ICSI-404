@@ -51,8 +51,21 @@ public class Longword {
         return a;
     }
 
-    //! Longword rightShift(int amount); // rightshift this longword by amount bits, creating a new longword    
-    //! Longword leftShift(int amount); // leftshift this longword by amount bits, creating a new longword
+    Longword rightShift(int amount){ // rightshift this longword by amount bits, creating a new longword    
+        Longword a = new Longword();
+        for (int i = amount, j =0; i < LONGWORD_SIZE; i++, j++) {
+            a.setBit(i, bits[j]);
+        }
+        return a;
+    }
+
+    Longword leftShift(int amount){ // leftshift this longword by amount bits, creating a new longword
+        Longword a = new Longword();
+        for (int i = 0, j = amount; j < LONGWORD_SIZE; i++, j++) {
+            a.setBit(i, bits[j]);
+        }
+        return a;
+    }
 
     @Override 
     public String toString(){ // returns a comma separated string of 0's and 1's: "0,0,0,0,0 (etcetera)" for example
@@ -65,4 +78,44 @@ public class Longword {
         }
         return str.toString();
     }
+
+    public long getUnsigned() {// returns the value of this longword as a long
+        long num = 0;
+        long power = 1;
+
+        for (int i = LONGWORD_SIZE - 1; i >= 0; i--) {
+            Bit b = bits[i];
+            num = num + (Long.parseLong(b + "") * power);
+            power = power * 2;
+        }
+
+        return num;
+    }
+
+    /**
+     * twos complement: flip all the bits then add ...0001 (1) to it to negate the number
+     * @return
+     */
+    public int getSigned(){
+        int num = 0;
+        int power = 1;
+        if(bits[0].getValue() == 1){
+            for (int i = LONGWORD_SIZE - 1; i >= 1; i--) {
+                Bit b = bits[i].not();
+                num = num + (Integer.parseInt(b + "") * power);
+                power = power * 2;
+            }
+            num +=1;
+            num *= -1;
+        } else {
+            for (int i = LONGWORD_SIZE - 1; i >= 0; i--) {
+                Bit b = bits[i];
+                num = num + (Integer.parseInt(b + "") * power);
+                power = power * 2;
+            }
+        }
+
+        return num;
+    }
+
 }
