@@ -3,12 +3,16 @@ public class Longword {
     public final int LONGWORD_SIZE = 32;
     private Bit[] bits;
 
-    public Longword(){
+    public Longword(){ // default constructor, all bits set to 0
         bits = new Bit[LONGWORD_SIZE];
         for (int i = 0; i < LONGWORD_SIZE; i++) {
             bits[i] = new Bit();
-              //  System.out.println(bit.getValue());
         }
+    }
+
+    public Longword(Longword l){ // constructor, all bits copied from other longword
+        bits = new Bit[LONGWORD_SIZE];
+        copy(l);
     }
 
     public Bit getBit(int i){  // Get bit i
@@ -19,7 +23,7 @@ public class Longword {
         bits[i].set(value.getValue());
     }
 
-    public Longword and(Longword b){
+    public Longword and(Longword b){ // and two longwords, returning a third
         Longword a = new Longword();
         for (int i = 0; i < LONGWORD_SIZE; i++) {
             a.setBit(i, bits[i].and(b.getBit(i)));
@@ -27,7 +31,7 @@ public class Longword {
         return a;
     }
     
-    public Longword or(Longword b){
+    public Longword or(Longword b){ // or two longwords, returning a third
         Longword a = new Longword();
         for (int i = 0; i < LONGWORD_SIZE; i++) {
             a.setBit(i, bits[i].or(b.getBit(i)));
@@ -35,7 +39,7 @@ public class Longword {
         return a;
     }
 
-    public Longword xor(Longword b){
+    public Longword xor(Longword b){ // xor two longwords, returning a third
         Longword a = new Longword();
         for (int i = 0; i < LONGWORD_SIZE; i++) {
             a.setBit(i, bits[i].xor(b.getBit(i)));
@@ -43,7 +47,7 @@ public class Longword {
         return a;
     }
     
-    public Longword not(){
+    public Longword not(){ // negate this longword, creating another
         Longword a = new Longword();
         for (int i = 0; i < LONGWORD_SIZE; i++) {
             a.setBit(i, bits[i].not());
@@ -79,7 +83,7 @@ public class Longword {
         return str.toString();
     }
 
-    public long getUnsigned() {// returns the value of this longword as a long
+    public long getUnsigned() { // returns the value of this longword as a long
         long num = 0;
         long power = 1;
 
@@ -92,11 +96,7 @@ public class Longword {
         return num;
     }
 
-    /**
-     * twos complement: flip all the bits then add ...0001 (1) to it to negate the number
-     * @return
-     */
-    public int getSigned(){
+    public int getSigned(){ // returns the value of this longword as an int
         int num = 0;
         int power = 1;
         if(bits[0].getValue() == 1){
@@ -118,4 +118,17 @@ public class Longword {
         return num;
     }
 
+    public void copy(Longword l){ // copies the values of the bits from another longword into this one
+        for (int i = 0; i < LONGWORD_SIZE; i++) {
+            bits[i] = l.getBit(i);
+        }
+    }
+
+    public void set(int value){  // set the value of the bits of this longword (used for tests)
+        String sbits = Long.toBinaryString(Integer.toUnsignedLong(value) | 0x100000000L).substring(1); //converts value into 32bit binary as a string
+
+        for (int i = 0; i < LONGWORD_SIZE; i++) {
+            bits[i].set(sbits.charAt(i) - 48); // 48 is dec for char 0, 49 = 1
+        }
+    }
 }
