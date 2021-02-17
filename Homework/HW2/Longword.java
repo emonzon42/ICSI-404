@@ -15,6 +15,11 @@ public class Longword {
         copy(l);
     }
 
+    public Longword(int value){ // constructor, with value as signed int
+        this();
+        set(value);
+    }
+
     public Bit getBit(int i){  // Get bit i
         return bits[i];
     }
