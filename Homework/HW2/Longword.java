@@ -28,6 +28,10 @@ public class Longword {
         bits[i].set(value.getValue());
     }
 
+    public void setBit(int i, int value){ // set bit i's value
+        bits[i].set(value);
+    }
+
     public Longword and(Longword b){ // and two longwords, returning a third
         Longword a = new Longword();
         for (int i = 0; i < LONGWORD_SIZE; i++) {
