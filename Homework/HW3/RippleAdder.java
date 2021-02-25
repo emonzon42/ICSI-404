@@ -17,10 +17,7 @@ public class RippleAdder {
                 c.setBit(i, 1);
             }else if (carry > 0 && add > 1){ // 1 + 1 + 1(carry)
                 c.setBit(i, 0);
-            }else if (carry > 0)  { // 0 + 0 + (carry > 1)  or 1 + 0 + (carry > 1)
-                c.setBit(i, add - carry + 1);
-                carry--;
-            } else { // 0 + 0 + 1(carry) or 1 + 0 + 1(carry) or 1 + 0 + 0(carry)
+            }else { // 0 + 0 + 1(carry) or 1 + 0 + 1(carry) or 1 + 0 + 0(carry)
                 c.setBit(i, add);
                 if (carry != 0)
                     carry--;
