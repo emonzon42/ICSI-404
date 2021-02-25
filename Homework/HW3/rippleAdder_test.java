@@ -28,6 +28,8 @@ public class rippleAdder_test {
         if (RippleAdder.add(new Longword(-50), new Longword(80)).getSigned() != 30) throw new Exception("Add failed @ -50 + 80 = 30");
         if (RippleAdder.add(new Longword(162), new Longword(-54)).getSigned() != 108) throw new Exception("Add failed @ 162 + -54 = 108");
         if (RippleAdder.add(new Longword(-653), new Longword(-47)).getSigned() != -700) throw new Exception("Add failed @ -653 + -44 = -700");
+
+        if(new Longword(67).plus(new Longword(33)).getSigned() != 100) throw new Exception("Add failed @ 67 + 33 = 100");
     }
 
     public static void testSub() throws Exception{
@@ -40,5 +42,7 @@ public class rippleAdder_test {
         if (RippleAdder.subtract(new Longword(1), new Longword(-1)).getSigned() != 2) throw new Exception("Sub failed @ 1 - -1 = 2");
         if (RippleAdder.subtract(new Longword(-26), new Longword(-24)).getSigned() != -2) throw new Exception("Sub failed @ -26 - -24 = -2");
         if (RippleAdder.subtract(new Longword(-50), new Longword(5)).getSigned() != -55) throw new Exception("Sub failed @ -50 - 5 = -55");
+
+        if(new Longword(4821).minus(new Longword(2134)).getSigned() != 2687) throw new Exception("Sub failed @ 4821 - 2134 = 2687");
     }
 }

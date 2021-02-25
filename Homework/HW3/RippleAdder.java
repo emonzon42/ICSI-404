@@ -4,14 +4,12 @@ public class RippleAdder {
             return subtract(b, twosComplement(a));
         else if(b.getSigned() < 0)
             return subtract(a, twosComplement(b));
-
-     //   System.out.println(a.getSigned() + " + " + b.getSigned());
+        
         Longword c = new Longword();
         int carry = 0;
         for (int i = c.LONGWORD_SIZE-1  ; i > 0; i--) {
             int add =  a.getBit(i).getValue() + b.getBit(i).getValue() + carry;
-            //System.out.println();
-            //System.out.print(a + "\n+\n" + b + "\n--------------------------------------------------------------------");
+
             if (carry == 0 && add > 1){ // 1 + 1 + 0(carry)
                 c.setBit(i, 0);
                 carry++;
@@ -27,41 +25,24 @@ public class RippleAdder {
                 if (carry != 0)
                     carry--;
             }
-
-            //System.out.println();
-            //System.out.println(c);
         }
-     //   System.out.println(c.getSigned());
         return c;
     }
 
     public static Longword subtract(Longword a, Longword b){ //takes two longword and subtracts one from the other
-        if(a.getSigned() < 0 && b.getSigned() < 0)
+        if(a.getSigned() < 0 && b.getSigned() < 0) //if both longwords are negative
             return subtract(twosComplement(b), twosComplement(a));
 
-
         Longword aa = new Longword(a); //backups a because a can get modified during subtraction
-    //    System.out.println();
-     //   System.out.println(a.getSigned() + " - " + b.getSigned());
         Longword c = new Longword();
         for (int i = c.LONGWORD_SIZE-1  ; i >= 0; i--) {
-         //   System.out.println();
-        //    System.out.println();
-        //    System.out.print(a + "\n-\n" + b + "\n--------------------------------------------------------------------");
             int sub =  a.getBit(i).getValue() - b.getBit(i).getValue();
-            //* https://www.youtube.com/watch?v=h_fY-zSiMtY
             if (sub < 0){ //0 - 1
-            //    System.out.print(" = " + sub);
                 int borrow = borrow(i, a); //i tried skipping this step to save mem but it forces me to save the value 
                 sub = a.getBit(i).getValue() - b.getBit(i).getValue() + borrow; //should now be 1 - 1 + 1
-              //  System.out.print("  : " + sub + " --: "+ borrow);
             }
-        //    System.out.println();
             c.setBit(i, sub);
-        //    System.out.println(c);
-          //  System.out.println(a + "\n-\n" + b + " = " + c);
         }
-      //  System.out.println(c.getSigned());
         a = aa; //sets a back to what it started as
         return c;
     }
