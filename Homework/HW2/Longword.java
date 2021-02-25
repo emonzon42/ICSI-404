@@ -127,6 +127,10 @@ public class Longword {
         return num;
     }
 
+    public Longword twosComplement(){ // returns the two's complement of the longword
+        return new Longword(this.not().getSigned() + 1);
+    }
+
     public void copy(Longword l){ // copies the values of the bits from another longword into this one
         for (int i = 0; i < LONGWORD_SIZE; i++) {
             bits[i] = l.getBit(i);
@@ -139,5 +143,13 @@ public class Longword {
         for (int i = 0; i < LONGWORD_SIZE; i++) {
             bits[i].set(sbits.charAt(i) - 48); // 48 is dec for char 0, 49 = 1
         }
+    }
+
+    public Longword plus(Longword a){ // adds a to this longword, creating a new longword
+        return RippleAdder.add(this, a);
+    }
+
+    public Longword minus(Longword a){ // subtracts a from this longword, creating a new longword
+        return RippleAdder.sub(this, a);
     }
 }
