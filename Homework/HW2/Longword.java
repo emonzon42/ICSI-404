@@ -145,11 +145,15 @@ public class Longword {
         }
     }
 
-    public Longword plus(Longword a){ // adds a to this longword, creating a new longword
-        return RippleAdder.add(this, a);
+    public Longword plus(Longword b){ // adds b to this longword, creating a new longword
+        return RippleAdder.add(this, b);
     }
 
-    public Longword minus(Longword a){ // subtracts a from this longword, creating a new longword
-        return RippleAdder.sub(this, a);
+    public Longword minus(Longword b){ // subtracts b from this longword, creating a new longword
+        return RippleAdder.sub(this, b);
+    }
+
+    public Longword times(Longword b){ // multiplies this longword times b, creating a new longword
+        return Multiplier.multiply(this, b);
     }
 }
