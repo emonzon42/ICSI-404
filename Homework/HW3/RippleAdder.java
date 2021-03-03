@@ -7,7 +7,7 @@ public class RippleAdder {
         
         Longword c = new Longword();
         int carry = 0;
-        for (int i = c.LONGWORD_SIZE-1  ; i > 0; i--) {
+        for (int i = c.LONGWORD_SIZE-1  ; i >= 0; i--) {
             int add =  a.getBit(i).getValue() + b.getBit(i).getValue() + carry;
 
             if (carry == 0 && add > 1){ // 1 + 1 + 0(carry)
