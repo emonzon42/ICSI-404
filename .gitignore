@@ -7,3 +7,6 @@
 
 #Alias folder
 _back
+
+#For self reference
+*.note
