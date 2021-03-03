@@ -1,41 +1,18 @@
 public class Multiplier {
-    public static Longword multiply (Longword a, Longword b){
+    public static Longword multiply (Longword a, Longword b){ //takes two longwords and multiplies them together
         if (isPowerOf2(b.getSigned()))
             return multiplyBy2(a,b);
         else if (isPowerOf2(a.getSigned()))
             return multiplyBy2(b, a);
 
-        System.out.println(a);
-        System.out.println(b);
-        
         Longword c = new Longword();
         for (int i = b.LONGWORD_SIZE-1; i >= 0 ; i--) { //each digit in b
             Longword letsAdd = new Longword();// gets added on to c to create final longword
-            System.out.print("i:" + i + " | b(i): "+ b.getBit(i) + " * a = ");
             for (int j = a.LONGWORD_SIZE-1; j >= 0; j--) { //each digit in a
-                int multi = a.getBit(j).getValue() * b.getBit(i).getValue();
-              //  System.out.println();
-               // System.out.println(a.getBit(j).getValue() + "* " + b.getBit(i).getValue());
-                //System.out.print(a + "\n*\n" + b + "\n--------------------------------------------------------------------");
-                letsAdd.setBit(j, multi);
-                /*
-                0101
-                1001
-
-                0101
-                0000
-                00
-                0
-                */
-               // System.out.println();
-              //System.out.println(letsAdd);
+                letsAdd.setBit(j, a.getBit(j).getValue() * b.getBit(i).getValue());
             }
-            System.out.println(letsAdd.leftShift(a.LONGWORD_SIZE-1-i));
             c = c.plus(letsAdd.leftShift(a.LONGWORD_SIZE-1-i));
-            
         }
-        System.out.println(c);
-        System.out.println();
         return c;
     }
 
