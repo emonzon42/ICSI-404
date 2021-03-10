@@ -1,6 +1,6 @@
 public class Longword {
     
-    public final int LONGWORD_SIZE = 32;
+    public final byte LONGWORD_SIZE = 32;
     private Bit[] bits;
 
     public Longword(){ // default constructor, all bits set to 0

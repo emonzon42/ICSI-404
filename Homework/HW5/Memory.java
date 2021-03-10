@@ -1,6 +1,6 @@
 public class Memory {
 
-    public final int MEM_SIZE = 1024; //memory size
+    public final short MEM_SIZE = 1024; //memory size
     private Bit[] mem; //memory
 
     public Memory(){ //constructor, sets all bits to 0

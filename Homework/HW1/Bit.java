@@ -1,6 +1,6 @@
 public class Bit implements IBit {
 
-    private int bit = 0;
+    private byte bit = 0;
 
     public Bit(int value) {
         set(value);
@@ -14,7 +14,7 @@ public class Bit implements IBit {
         if (value != 0)
             bit = 1;
         else
-            bit = value;
+            bit = 0;
     }
 
     public void set() {
