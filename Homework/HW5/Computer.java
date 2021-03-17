@@ -32,8 +32,8 @@ public class Computer {
     }
 
     public void decode(){
-        op1 = R[currentInstruction.leftShift(20).rightShift(8).rightShift(20).getSigned()];
-        op2 = R[currentInstruction.leftShift(24).rightShift(4).rightShift(24).getSigned()];
+        op1 = R[currentInstruction.leftShift(20).rightShift(28).getSigned()];
+        op2 = R[currentInstruction.leftShift(24).rightShift(28).getSigned()];
     }
 
     public Longword execute(){
