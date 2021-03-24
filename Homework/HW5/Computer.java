@@ -5,8 +5,8 @@ public class Computer {
     private Longword PC; //program counter
     private Longword[] R; //the registers
 
-    private Longword currentInstruction;
-    private Longword op1, op2;
+    private Longword currentInstruction; //current instruction
+    private Longword op1, op2; //
 
     public Computer(){ //constructor
         mem = new Memory();
@@ -17,7 +17,7 @@ public class Computer {
             R[i] = new Longword();
     }
 
-    public void run(){
+    public void run(){ //runs the computer until signalled off
         while (onoff.getValue() == 1) {
             fetch();
             decode();
@@ -26,17 +26,18 @@ public class Computer {
         }
     }
 
-    public void fetch(){
+    public void fetch(){ //fetches instruction from memory
         currentInstruction = mem.read(PC);
         PC = PC.plus(new Longword(2)); //increments PC by 2
     }
 
-    public void decode(){
+    public void decode(){ //decodes the instruction for the register numbers 
+                        //and stores whats in R[source1] and R[source2] to op1 and op2
         op1 = R[currentInstruction.leftShift(20).rightShift(28).getSigned()];
         op2 = R[currentInstruction.leftShift(24).rightShift(28).getSigned()];
     }
 
-    public Longword execute(){
+    public Longword execute(){ //executes operation
         Longword result = ALU.doOp(
             new Bit[]{currentInstruction.getBit(0 + 16), // i + 16 skips the first 16 bits as the values would be 0s
                 currentInstruction.getBit(1 + 16),
@@ -47,31 +48,8 @@ public class Computer {
         return result;
     }
 
-    public void store(Longword result){
+    public void store(Longword result){ // stores result in R[target]
         R[currentInstruction.leftShift(28).rightShift(28).getSigned()] = result;
     }
-/*
-    private void buildInstruction(){
-        currentInstruction = new Longword();
-        currentInstruction.setBit(16, 1);
-        currentInstruction.setBit(17, 1);
-        currentInstruction.setBit(18, 1);
-        currentInstruction.setBit(19, 0);
 
-        currentInstruction.setBit(20, 0);
-        currentInstruction.setBit(21, 0);
-        currentInstruction.setBit(22, 0);
-        currentInstruction.setBit(23, 1);
-
-        currentInstruction.setBit(24, 0);
-        currentInstruction.setBit(25, 0);
-        currentInstruction.setBit(26, 1);
-        currentInstruction.setBit(27, 0);
-
-        currentInstruction.setBit(28, 0);
-        currentInstruction.setBit(29, 0);
-        currentInstruction.setBit(30, 1);
-        currentInstruction.setBit(31, 1);
-    }
-*/
 }
