@@ -38,12 +38,17 @@ public class Computer {
     }
 
     public Longword execute(){ //executes operation
-        Longword result = ALU.doOp(
-            new Bit[]{currentInstruction.getBit(0 + 16), // i + 16 skips the first 16 bits as the values would be 0s
-                currentInstruction.getBit(1 + 16),
-                currentInstruction.getBit(2 + 16),
-                currentInstruction.getBit(3 + 16)},
-                op1, op2);
+        Bit[] operation = new Bit[]{currentInstruction.getBit(0 + 16), // i + 16 skips the first 16 bits as the values would be 0s
+                                    currentInstruction.getBit(1 + 16),
+                                    currentInstruction.getBit(2 + 16),
+                                    currentInstruction.getBit(3 + 16)};
+
+        if (ALU.areEqual(operation,new Bit[]{new Bit(0),new Bit(0),new Bit(0),new Bit(0)})) // HALT
+            halt();
+        else if (ALU.areEqual(operation,new Bit[]{new Bit(0),new Bit(0),new Bit(0),new Bit(1)}))
+            move();
+
+        Longword result = ALU.doOp(operation,op1, op2);
 
         return result;
     }
@@ -52,4 +57,12 @@ public class Computer {
         R[currentInstruction.leftShift(28).rightShift(28).getSigned()] = result;
     }
 
+    private void halt(){ //turns off the computer
+        System.out.println("HALTED");
+        onoff.set(0);
+    }
+    
+    private void move(){
+        //todo: pt2 move into register
+    }
 }
