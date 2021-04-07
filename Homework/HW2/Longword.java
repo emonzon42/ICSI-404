@@ -81,13 +81,13 @@ public class Longword {
     }
 
     @Override 
-    public String toString(){ // returns a comma separated string of 0's and 1's: "0,0,0,0,0 (etcetera)" for example
+    public String toString(){ // returns the longword as a string i.e 0000 0000 0000 0001
         StringBuilder str = new StringBuilder();
-        for (Bit bit : bits) {
-            str.append(bit.getValue());
-            
-            if (str.length() != 63) //63 = 32 bits + 31 commas
-                str.append(",");
+        for (int i = 0; i < bits.length; i++) {
+            str.append(bits[i].getValue());
+
+            if (i != 0 && (i+1)%4 == 0) //every 4 bits adds a space to seperate
+                str.append(" ");
         }
         return str.toString();
     }
