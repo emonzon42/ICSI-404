@@ -133,7 +133,7 @@ public class Longword {
 
     public void copy(Longword l){ // copies the values of the bits from another longword into this one
         for (int i = 0; i < LONGWORD_SIZE; i++) {
-            bits[i] = l.getBit(i);
+            bits[i] = new Bit(l.getBit(i).getValue());
         }
     }
 

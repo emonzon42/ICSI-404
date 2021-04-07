@@ -40,7 +40,7 @@ public class RippleAdder {
             }
             c.setBit(i, sub);
         }
-        a = aa; //sets a back to what it started as
+        a.copy(aa); //sets a back to what it started as
         return c;
     }
 
