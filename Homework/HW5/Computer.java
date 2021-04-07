@@ -6,11 +6,11 @@ public class Computer {
     private Longword[] R; //the registers
 
     private Longword currentInstruction; //current instruction
-    private Longword op1, op2; //
+    private Longword op1, op2; //holds operations retrieved from registers
 
     public Computer(){ //constructor
         mem = new Memory();
-        onoff = new Bit(0);
+        onoff = new Bit(1);
         PC = new Longword();
         R = new Longword[16];
         for (int i = 0; i < R.length; i++)
@@ -34,6 +34,26 @@ public class Computer {
                 continue;
             store(result);
         }
+    }
+
+    public void preload(String[] bits){
+        Longword temp = new Longword();
+        byte index = 0;
+
+        for (int i = 0; i < bits.length; i++) {
+            for (char bit : bits[i].toCharArray()) {
+                temp.setBit(index + 16, bit-48); // bit - 48 bc 0 in ascii is 48
+                index++;
+            }
+        }
+
+        /*if (index != 15){ //pads out remainder with 0s
+            for (; index < 16; index++) {
+                temp.setBit(index + 16, 0);
+            }
+        }*/
+
+        mem.write(new Longword(0), temp);
     }
 
     public void fetch(){ //fetches instruction from memory
@@ -61,6 +81,9 @@ public class Computer {
             return null;
         }else if (ALU.areEqual(operation,new Bit[]{new Bit(0),new Bit(0),new Bit(0),new Bit(1)})){ //MOVE
             move();
+            return null;
+        }else if (ALU.areEqual(operation,new Bit[]{new Bit(0),new Bit(0),new Bit(1),new Bit(0)})){ //INTERRUPT
+            interrupt(currentInstruction.getBit(currentInstruction.LONGWORD_SIZE-1));
             return null;
         }else
             return ALU.doOp(operation,op1, op2);
@@ -92,5 +115,18 @@ public class Computer {
 
         R[op1.getSigned()] = temp;
     }
+
+    private void interrupt(Bit type){
+        if (type.getValue() == 0){ //print all the registers
+            for (Longword register : R) {
+                System.out.println(register);
+            }
+        }else if (type.getValue() == 1){ //print all 1024 bytes from memory
+            for (int i = 0; i < mem.MEM_SIZE; i+=32) {
+                System.out.println(mem.read(new Longword(i)));
+            }
+        }
+    }
+    
 
 }
