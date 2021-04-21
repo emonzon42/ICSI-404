@@ -23,9 +23,13 @@ public class assembler_test {
 
         System.out.println(Arrays.toString(Assembler.assemble(new String[]{"NOT R7 R3"})));
 
-        System.out.println(Arrays.toString(Assembler.assemble(new String[]{"SUBTRACT R0 R3 R3"})));
+        System.out.println(Arrays.toString(Assembler.assemble(new String[]{"INTERRUPT 1"})));
 
-        System.out.println(Arrays.toString(Assembler.assemble(new String[]{"SUBTRACT R0 R3 R3","MULTIPLY R3 R6 R3","ADD R13 R3 R3"})));
+        System.out.println(Arrays.toString(Assembler.assemble(new String[]{"SUBTRACT R0 R3 R3","MULTIPLY R3 R6 R3","RIGHTSHIFT R13 R3 R3"})));
+
+        System.out.println(Arrays.toString(Assembler.assemble(new String[]{"XOR R1 R5 R2"})));
+
+        System.out.println(Arrays.toString(Assembler.assemble(new String[]{"AND R7 R5 R1","MOVE R7 67"})));
 
     }
     
