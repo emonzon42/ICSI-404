@@ -3,7 +3,7 @@ import java.util.ArrayList;
 public class Assembler {
     
     public static String[] assemble(String[] commands) throws Exception{ //returns a string array of instructions in the format "0000 0000 0000 0000"
-        ArrayList<String> bitCommands = new ArrayList<>();
+        ArrayList<String> bitCommands = new ArrayList<String>();
         for (String command : commands) {
             String[] keys = command.split(" ");
             if (keys[0].equalsIgnoreCase("HALT")) {
@@ -40,16 +40,20 @@ public class Assembler {
                 throw new Exception("INVALID COMMAND @" + keys[0]);
             }
         }
-        return (String []) bitCommands.toArray();
+
+        return bitCommands.toArray(new String[bitCommands.size()]);
     }
 
-    private static String halt(String[] keys){
+    private static String halt(String[] keys){ //halt instruction
         StringBuilder sb = new StringBuilder();
         sb.append("0000 0000 0000 0000"); //halt
         return sb.toString();
     }
 
-    private static String move(String[] keys) throws Exception{
+    private static String move(String[] keys) throws Exception{ //move instruction
+        if (keys.length != 3)
+            throw new Exception("INVALID NO. OF REGISTERS");
+        
         StringBuilder sb = new StringBuilder();
         sb.append("0001"); //move
         sb.append(" ");
@@ -60,7 +64,10 @@ public class Assembler {
         return sb.toString();
     }
 
-    private static String interrupt(String[] keys) throws Exception{
+    private static String interrupt(String[] keys) throws Exception{ //interrupt instruction
+        if (keys.length != 2)
+            throw new Exception("INVALID NO. OF REGISTERS");
+
         StringBuilder sb = new StringBuilder();
         sb.append("0010"); //interrupt
         sb.append(" ");
@@ -71,28 +78,28 @@ public class Assembler {
         return sb.toString();
     }
 
-    private static String jump(String[] keys) throws Exception{
+    private static String jump(String[] keys) throws Exception{ //jump instruction
         StringBuilder sb = new StringBuilder();
         //TODO: Assignment 9
 
         return sb.toString();
     }
 
-    private static String compare(String[] keys) throws Exception{
+    private static String compare(String[] keys) throws Exception{ //compare instruction
         StringBuilder sb = new StringBuilder();
         //TODO: Assignment 9
 
         return sb.toString();
     }
 
-    private static String stack(String[] keys) throws Exception{
+    private static String stack(String[] keys) throws Exception{ //stack instruction
         StringBuilder sb = new StringBuilder();
         //TODO: Assignment 10
 
         return sb.toString();
     }
 
-    private static String multiply(String[] keys) throws Exception{
+    private static String multiply(String[] keys) throws Exception{ //multiply instruction
         if (keys.length != 4)
             throw new Exception("INVALID NO. OF REGISTERS");
 
@@ -108,7 +115,7 @@ public class Assembler {
         return sb.toString();
     }
 
-    private static String and(String[] keys) throws Exception{
+    private static String and(String[] keys) throws Exception{ //and instruction
         if (keys.length != 4)
             throw new Exception("INVALID NO. OF REGISTERS");
 
@@ -124,7 +131,7 @@ public class Assembler {
         return sb.toString();
     }
 
-    private static String or(String[] keys) throws Exception{
+    private static String or(String[] keys) throws Exception{ //or instruction
         if (keys.length != 4)
             throw new Exception("INVALID NO. OF REGISTERS");
 
@@ -140,7 +147,7 @@ public class Assembler {
         return sb.toString();
     }
 
-    private static String xor(String[] keys) throws Exception{
+    private static String xor(String[] keys) throws Exception{ //xor instruction
         if (keys.length != 4)
             throw new Exception("INVALID NO. OF REGISTERS");
 
@@ -156,7 +163,7 @@ public class Assembler {
         return sb.toString();
     }
 
-    private static String not(String[] keys)throws Exception{
+    private static String not(String[] keys)throws Exception{ //not instruction
         if (keys.length != 3)
             throw new Exception("INVALID NO. OF REGISTERS");
 
@@ -165,13 +172,16 @@ public class Assembler {
         sb.append(" ");
         sb.append(registerNumber(keys[1])); //source register
         sb.append(" ");
+        sb.append("0000"); //padding 0s
+        sb.append(" ");
         sb.append(registerNumber(keys[2])); //destination register
+        
         
 
         return sb.toString();
     }
 
-    private static String leftshift(String[] keys) throws Exception{
+    private static String leftshift(String[] keys) throws Exception{ //leftshift instruction
         if (keys.length != 4)
             throw new Exception("INVALID NO. OF REGISTERS");
 
@@ -187,7 +197,7 @@ public class Assembler {
         return sb.toString();
     }
 
-    private static String rightshift(String[] keys) throws Exception{
+    private static String rightshift(String[] keys) throws Exception{ //rightshift instruction
         if (keys.length != 4)
             throw new Exception("INVALID NO. OF REGISTERS");
 
@@ -203,7 +213,7 @@ public class Assembler {
         return sb.toString();
     }
 
-    private static String add(String[] keys) throws Exception{
+    private static String add(String[] keys) throws Exception{ //add instruction
         if (keys.length != 4)
             throw new Exception("INVALID NO. OF REGISTERS");
 
@@ -219,7 +229,7 @@ public class Assembler {
         return sb.toString();
     }
 
-    private static String subtract(String[] keys) throws Exception{
+    private static String subtract(String[] keys) throws Exception{ //subtract instruction
         if (keys.length != 4)
             throw new Exception("INVALID NO. OF REGISTERS");
 
@@ -235,7 +245,7 @@ public class Assembler {
         return sb.toString();
     }
 
-    private static String registerNumber(String reg) throws Exception{
+    private static String registerNumber(String reg) throws Exception{ //returns register number indicated by reg in binary
         switch (reg.toUpperCase()) {
             case "R0":
                 return "0000";
@@ -274,11 +284,27 @@ public class Assembler {
         }
     }
 
-    private static String numToBinary(int num){ //returns a string number formatted 0000 0000
-        StringBuilder sb = new StringBuilder(Integer.toBinaryString(num));
-        sb.delete(0, sb.length()-9);
-        sb.insert(4, " ");
-        System.out.println(sb.toString());
+    private static String numToBinary(int num) throws Exception{ //returns a string number formatted 0000 0000
+        StringBuilder sb;
+        if(num < -128 || num > 127){
+            throw new Exception("INVALID NUMBER @ "+ num);
+        } else if (num < 0) {
+            sb = new StringBuilder(Long.toBinaryString(num));
+            sb.delete(0, sb.length()-8);
+        } else {
+            sb = new StringBuilder(Integer.toBinaryString(num));
+        }
+
+        if (sb.length() > 8){
+            throw new Exception("INVALID NUMBER @ "+ num);
+        }else if(sb.length() < 8){
+            int initLength = sb.length();
+            for (int i = 0; i < 8-initLength; i++) {
+                sb.insert(i, "0");
+            }
+        }
+
+        sb.insert(sb.length()/2, " ");
         return sb.toString();
     }
 }
