@@ -1,7 +1,6 @@
 public class ALU {
     public static Longword doOp(Bit[] operation, Longword a, Longword b){ //does operation on two longwords based on bit[] array
-        if (b == null)
-            return doSoloOp(operation,a);
+        Longword lastFive = new Longword(b.leftShift(27).rightShift(27)); //the value of the last 5 bits of b
 
         if (areEqual(operation, new Bit[]{new Bit(1),new Bit(0),new Bit(0),new Bit(0)})){ //1000
             return a.and(b);
@@ -12,9 +11,9 @@ public class ALU {
         else if (areEqual(operation, new Bit[]{new Bit(1),new Bit(0),new Bit(1),new Bit(1)})) //1011
             return a.not();
         else if (areEqual(operation, new Bit[]{new Bit(1),new Bit(1),new Bit(0),new Bit(0)})) //1100
-            return a.leftShift(1);
+            return a.leftShift(lastFive.getSigned());
         else if (areEqual(operation, new Bit[]{new Bit(1),new Bit(1),new Bit(0),new Bit(1)})) //1101
-            return a.rightShift(1);
+            return a.rightShift(lastFive.getSigned());
         else if (areEqual(operation, new Bit[]{new Bit(1),new Bit(1),new Bit(1),new Bit(0)})) //1110
             return a.plus(b);
         else if (areEqual(operation, new Bit[]{new Bit(1),new Bit(1),new Bit(1),new Bit(1)})) //1111
@@ -22,17 +21,6 @@ public class ALU {
         else if (areEqual(operation, new Bit[]{new Bit(0),new Bit(1),new Bit(1),new Bit(1)})) //0111
             return a.times(b);
         
-        return new Longword();
-    }
-
-    public static Longword doSoloOp(Bit[] operation, Longword a){ //same as doOp except its only for solo operations (less logic checks)
-        if (areEqual(operation, new Bit[]{new Bit(1),new Bit(0),new Bit(1),new Bit(1)}))
-            return a.not();
-        else if (areEqual(operation, new Bit[]{new Bit(1),new Bit(1),new Bit(0),new Bit(0)}))
-            return a.leftShift(1);
-        else if (areEqual(operation, new Bit[]{new Bit(1),new Bit(1),new Bit(0),new Bit(1)}))
-            return a.rightShift(1);
-
         return new Longword();
     }
 
