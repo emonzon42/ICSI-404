@@ -4,7 +4,8 @@ public class Computer {
     private Memory mem; //computer memory
     private Longword PC; //program counter
     private Longword[] R; //the registers
-
+    
+    private Longword result; //result of operation
     private Longword currentInstruction; //current instruction
     private Longword op1, op2; //holds operations retrieved from registers
 
@@ -31,10 +32,10 @@ public class Computer {
         while (turnedOn()) {
             fetch();
             Bit[] op = decode();
-            Longword result = execute(op);
+            result = execute(op);
             if (result == null)
                 continue;
-            store(result);
+            store();
         }
     }
 
@@ -99,7 +100,7 @@ public class Computer {
         }
     }
 
-    public void store(Longword result){ // stores result in R[target]    
+    public void store(){ // stores result in R[target]    
         R[currentInstruction.leftShift(28).rightShift(28).getSigned()] = result;
     }
 
