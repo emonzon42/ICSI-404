@@ -3,7 +3,7 @@ public class Computer {
     private Bit onoff; // bit to represent whether computer is on or off
     private Memory mem; //computer memory
     private Longword PC; //program counter
-    private Longword[] R; //the registers
+    private Longword[] reg; //the registers
     
     private Longword result; //result of operation
     private Longword currentInstruction; //current instruction
@@ -13,9 +13,9 @@ public class Computer {
         mem = new Memory();
         onoff = new Bit(1);
         PC = new Longword();
-        R = new Longword[16];
-        for (int i = 0; i < R.length; i++)
-            R[i] = new Longword();
+        reg = new Longword[16];
+        for (int i = 0; i < reg.length; i++)
+            reg[i] = new Longword();
         op1 = new Longword();
         op2 = new Longword();
     }
@@ -71,7 +71,7 @@ public class Computer {
     }
 
     public Bit[] decode(){ //decodes the instruction for the register numbers 
-                        //and stores whats in R[source1] and R[source2] to op1 and op2
+                        //and stores whats in reg[source1] and reg[source2] to op1 and op2
         System.out.println(currentInstruction);
 
         Bit[] opcode = new Bit[]{currentInstruction.getBit(0 + 16), // i + 16 skips the first 16 bits as the values would be 0s
@@ -79,8 +79,8 @@ public class Computer {
             currentInstruction.getBit(2 + 16),
             currentInstruction.getBit(3 + 16)};
 
-        op1.copy(R[currentInstruction.leftShift(20).rightShift(28).getSigned()]);
-        op2.copy(R[currentInstruction.leftShift(24).rightShift(28).getSigned()]);
+        op1.copy(reg[currentInstruction.leftShift(20).rightShift(28).getSigned()]);
+        op2.copy(reg[currentInstruction.leftShift(24).rightShift(28).getSigned()]);
 
         return opcode;
     }
@@ -100,8 +100,8 @@ public class Computer {
         }
     }
 
-    public void store(){ // stores result in R[target]    
-        R[currentInstruction.leftShift(28).rightShift(28).getSigned()] = result;
+    public void store(){ // stores result in reg[target]    
+        reg[currentInstruction.leftShift(28).rightShift(28).getSigned()] = result;
     }
 
     private void halt(){ //turns off the computer
@@ -126,7 +126,7 @@ public class Computer {
                 temp.setBit(i, 1);
             }
         }
-        R[currentInstruction.leftShift(20).rightShift(28).getSigned()] = temp;
+        reg[currentInstruction.leftShift(20).rightShift(28).getSigned()] = temp;
     }
 
     private void interrupt(Bit type){ //interrupts displaying either the registers or all 1024 bits of memory
@@ -134,12 +134,12 @@ public class Computer {
         System.out.println();
         if (type.getValue() == 0){ //print all the registers
             int regnum = 0;
-            for (Longword register : R) {
+            for (Longword register : reg) {
                 System.out.println("Register "+regnum+": "+register);
                 regnum++;
             }
         }else if (type.getValue() == 1){ //print all 1024 bytes from memory
-            for (int i = 0; i < 64; i+=2) {
+            for (int i = 0; i < mem.capacity(); i+=2) {
                 System.out.println("Block "+((i/2)+1)+": "+ mem.read(new Longword(i)));
             }
         }
