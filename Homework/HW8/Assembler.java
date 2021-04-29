@@ -7,35 +7,43 @@ public class Assembler {
         for (String command : commands) {
             String[] keys = command.split(" ");
             if (keys[0].equalsIgnoreCase("HALT")) {
-                bitCommands.add(halt(keys));
+                addToList(halt(keys),bitCommands);
             }else if (keys[0].equalsIgnoreCase("MOVE")) {
-                bitCommands.add(move(keys));
+                addToList(move(keys),bitCommands);
             }else if (keys[0].equalsIgnoreCase("INTERRUPT")) {
-                bitCommands.add(interrupt(keys));
+                addToList(interrupt(keys),bitCommands);
             }else if (keys[0].equalsIgnoreCase("JUMP")) {
-                bitCommands.add(jump(keys));
+                addToList(jump(keys),bitCommands);
             }else if (keys[0].equalsIgnoreCase("COMPARE")) {
-                bitCommands.add(compare(keys));
+                addToList(compare(keys),bitCommands);
             }else if (keys[0].equalsIgnoreCase("STACK")) {
-                bitCommands.add(stack(keys));
+                addToList(stack(keys),bitCommands);
             }else if (keys[0].equalsIgnoreCase("MULTIPLY")) {
-                bitCommands.add(multiply(keys));
+                addToList(multiply(keys),bitCommands);
             }else if (keys[0].equalsIgnoreCase("AND")) {
-                bitCommands.add(and(keys));
+                addToList(and(keys),bitCommands);
             }else if (keys[0].equalsIgnoreCase("OR")) {
-                bitCommands.add(or(keys));
+                addToList(or(keys),bitCommands);
             }else if (keys[0].equalsIgnoreCase("XOR")) {
-                bitCommands.add(xor(keys));
+                addToList(xor(keys),bitCommands);
             }else if (keys[0].equalsIgnoreCase("NOT")) {
-                bitCommands.add(not(keys));
+                addToList(not(keys),bitCommands);
             }else if (keys[0].equalsIgnoreCase("LEFTSHIFT")) {
-                bitCommands.add(leftshift(keys));
+                addToList(leftshift(keys),bitCommands);
             }else if (keys[0].equalsIgnoreCase("RIGHTSHIFT")) {
-                bitCommands.add(rightshift(keys));
+                addToList(rightshift(keys),bitCommands);
             }else if (keys[0].equalsIgnoreCase("ADD")) {
-                bitCommands.add(add(keys));
+                addToList(add(keys),bitCommands);
             }else if (keys[0].equalsIgnoreCase("SUBTRACT")) {
-                bitCommands.add(subtract(keys));
+                addToList(subtract(keys),bitCommands);
+            }else if (keys[0].equalsIgnoreCase("BEQ") || keys[0].equalsIgnoreCase("BRANCHIFEQUAL")) {
+                addToList(branch(keys,1),bitCommands);
+            }else if (keys[0].equalsIgnoreCase("BGT") || keys[0].equalsIgnoreCase("BRANCHIFGREATERTHAN")) {
+                addToList(branch(keys,2),bitCommands);
+            }else if (keys[0].equalsIgnoreCase("BGE") || keys[0].equalsIgnoreCase("BRANCHIFGREATERTHANOREQUAL")) {
+                addToList(branch(keys,3),bitCommands);
+            }else if (keys[0].equalsIgnoreCase("BNE") || keys[0].equalsIgnoreCase("BRANCHIFNOTEQUAL")) {
+                addToList(branch(keys,4),bitCommands);
             }else {
                 throw new Exception("INVALID COMMAND @" + keys[0]);
             }
@@ -44,7 +52,12 @@ public class Assembler {
         return bitCommands.toArray(new String[bitCommands.size()]);
     }
 
-    private static String halt(String[] keys){ //halt instruction
+
+
+    private static String halt(String[] keys) throws Exception{ //halt instruction
+        if (keys.length != 1)
+            throw new Exception("INVALID NO. OF KEYS");
+
         StringBuilder sb = new StringBuilder();
         sb.append("0000 0000 0000 0000"); //halt
         return sb.toString();
@@ -52,26 +65,25 @@ public class Assembler {
 
     private static String move(String[] keys) throws Exception{ //move instruction
         if (keys.length != 3)
-            throw new Exception("INVALID NO. OF REGISTERS");
+            throw new Exception("INVALID NO. OF KEYS");
         
         StringBuilder sb = new StringBuilder();
         sb.append("0001"); //move
         sb.append(" ");
         sb.append(registerNumber(keys[1])); //register
         sb.append(" ");
-        sb.append(numToBinary(Integer.parseInt(keys[2]))); //number
+        sb.append(numToBinary(Integer.parseInt(keys[2])).substring(5)); //value to move
 
         return sb.toString();
     }
 
     private static String interrupt(String[] keys) throws Exception{ //interrupt instruction
         if (keys.length != 2)
-            throw new Exception("INVALID NO. OF REGISTERS");
+            throw new Exception("INVALID NO. OF KEYS");
+        
 
         StringBuilder sb = new StringBuilder();
         sb.append("0010"); //interrupt
-        sb.append(" ");
-        sb.append("0000"); //padding 0s
         sb.append(" ");
         sb.append(numToBinary(Integer.parseInt(keys[1]))); //0 or 1
 
@@ -79,15 +91,57 @@ public class Assembler {
     }
 
     private static String jump(String[] keys) throws Exception{ //jump instruction
+        if (keys.length != 2)
+            throw new Exception("INVALID NO. OF KEYS");
+
         StringBuilder sb = new StringBuilder();
-        //TODO: Assignment 9
+        sb.append("0011"); //jump
+        sb.append(" ");
+        sb.append(numToBinary(Integer.parseInt(keys[1]))); //address
 
         return sb.toString();
     }
 
     private static String compare(String[] keys) throws Exception{ //compare instruction
+        if (keys.length != 3)
+            throw new Exception("INVALID NO. OF KEYS");
         StringBuilder sb = new StringBuilder();
-        //TODO: Assignment 9
+        sb.append("0100"); //branch
+        sb.append(" ");
+        sb.append("0000"); // padding 0s
+        sb.append(" ");
+        sb.append(registerNumber(keys[1])); //register x
+        sb.append(" ");
+        sb.append(registerNumber(keys[2])); //register y
+        
+
+        return sb.toString();
+    }
+
+    private static String branch(String[] keys, int type) throws Exception{ //branch instruction
+        if (keys.length != 2)
+            throw new Exception("INVALID NO. OF KEYS");
+
+        StringBuilder sb = new StringBuilder();
+
+        sb.append("0101"); //branch
+        sb.append(" ");
+        switch (type) {
+            case 1: //BRANCH IF EQUAL
+                sb.append("11");
+                break;
+            case 2: //BRANCH IF GREATER THAN
+                sb.append("10");
+                break;
+            case 3: //BRANCH IF GREATER THAN OR EQUAL
+                sb.append("01");
+                break;
+            default: //BRANCH IF NOT EQUAL
+                sb.append("00");
+                break;
+        }
+        sb.append(" ");
+        sb.append(numToBinary(Integer.parseInt(keys[1])).substring(2)); //value to jump
 
         return sb.toString();
     }
@@ -284,27 +338,40 @@ public class Assembler {
         }
     }
 
-    private static String numToBinary(int num) throws Exception{ //returns a string number formatted 0000 0000
+    private static String numToBinary(int num) throws Exception{ //returns a string number formatted 0000 0000 0000
         StringBuilder sb;
-        if(num < -128 || num > 127){
+        if(num < -2048 || num > 2047){
             throw new Exception("INVALID NUMBER @ "+ num);
         } else if (num < 0) {
             sb = new StringBuilder(Long.toBinaryString(num));
-            sb.delete(0, sb.length()-8);
+            sb.delete(0, sb.length()-4);
         } else {
             sb = new StringBuilder(Integer.toBinaryString(num));
         }
 
-        if (sb.length() > 8){
+        if (sb.length() > 12){
             throw new Exception("INVALID NUMBER @ "+ num);
-        }else if(sb.length() < 8){
+        }else if(sb.length() < 12){
             int initLength = sb.length();
-            for (int i = 0; i < 8-initLength; i++) {
+            for (int i = 0; i < 12-initLength; i++) {
                 sb.insert(i, "0");
             }
         }
 
-        sb.insert(sb.length()/2, " ");
+        //the following should always evaluate to true
+        if(sb.length() == 12){ //adds spaces
+            sb.insert(4," ");
+            sb.insert(9," ");
+        }else{
+            throw new Exception("ASSEMBLY ERROR");
+        }
+
         return sb.toString();
+    }
+
+    private static void addToList(String strbCommands, ArrayList<String> bCommands){ //adds bitcommand string to arraylist command by command
+        for (String string : strbCommands.split(" ")) {
+            bCommands.add(string);
+        }
     }
 }
