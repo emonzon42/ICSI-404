@@ -56,7 +56,7 @@ public class Computer {
                 temp.setBit(index + 16, bit-48); // bit - 48 bc 0 in ascii is 48
                 index++;
             }
-            if(bitIndex == 64)
+            if(bitIndex == mem.capacity())
                 break;
             if(index == 16 && i != bits.length-1){ // an instruction has been added but theres more bits to add
                 mem.write(new Longword(bitIndex), temp);
@@ -68,12 +68,8 @@ public class Computer {
         mem.write(new Longword(bitIndex), temp);
     }
 
-    public void assemble(String[] commands){
-        try {
-            preload(Assembler.assemble(commands));
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+    public void assemble(String[] commands) throws Exception{
+        preload(Assembler.assemble(commands));
     }
 
     public void fetch(){ //fetches instruction from memory
@@ -112,9 +108,10 @@ public class Computer {
         }else if (ALU.areEqual(operation,new Bit[]{new Bit(0),new Bit(1),new Bit(0),new Bit(0)})){ //COMPARE
             return compare();
         }else if (ALU.areEqual(operation,new Bit[]{new Bit(0),new Bit(1),new Bit(0),new Bit(1)})){ //BRANCH
-            if (branch().getValue() == 1)
-                return currentInstruction.leftShift(6 + 16).rightShift(6 + 16).extendSignAt(6); //branch value
-            else
+            if (branch().getValue() == 1){
+                System.out.println(": Jumping from address " + PC.getSigned() + " to " + PC.plus(currentInstruction.leftShift(6 + 16).rightShift(6 + 16).extendSignAt(6 + 16)).getSigned());
+                return currentInstruction.leftShift(6 + 16).rightShift(6 + 16).extendSignAt(6 + 16); //branch value
+            }else
                 return null;
         }else{
             return ALU.doOp(operation,op1, op2);
@@ -194,22 +191,47 @@ public class Computer {
 
     private Longword jump(){ //jumps to address specificed in instruction
         jump = true;
-        
+        System.out.println("Jumping from address " + PC.getSigned() + " to " + currentInstruction.leftShift(21).rightShift(21).getSigned());
         return currentInstruction.leftShift(20).rightShift(20); //jump value
     }
-    
+
     private Longword compare(){ //compares Rx to Ry specified in instruction
         compare = true;
         return currentInstruction.leftShift(24).rightShift(28).minus(currentInstruction.leftShift(28).rightShift(28));
     }
 
     private Bit branch(){ //checks whether branch condition is met 
-        if(comparison[0] == currentInstruction.getBit(4 + 16)
-        && comparison[1] == currentInstruction.getBit(5 + 16)){
-            branch = true;
-            PC = PC.minus(2);
+        branch = true;
+        System.out.print("Branch " + currentInstruction.getBit(4 + 16) + "," + currentInstruction.getBit(5 + 16));
+        PC = PC.minus(2);
+
+        if(comparison[0].equals(currentInstruction.getBit(4 + 16))
+        && comparison[1].equals(currentInstruction.getBit(5 + 16)))
+        { //instruction bits is equal to comparison bits
             return new Bit(1); //branch condition is true
+
+        }else if(((comparison[0].equals(new Bit(1)) && comparison[1].equals(new Bit(1)))
+        || comparison[0].equals(new Bit(1)) && comparison[1].equals(new Bit(0)) )
+        && (currentInstruction.getBit(4 + 16).equals(new Bit(0)) && currentInstruction.getBit(5 + 16).equals(new Bit(1))))
+        { //comparison is == or > and instruction is >=
+            return new Bit(1); //branch condition is true
+
+        } if(((currentInstruction.getBit(4 + 16).equals(new Bit(1)) && currentInstruction.getBit(5 + 16).equals(new Bit(1))) 
+        || currentInstruction.getBit(4 + 16).equals(new Bit(1)) && currentInstruction.getBit(5 + 16).equals(new Bit(0)) )
+        && (comparison[0].equals(new Bit(0)) && comparison[1].equals(new Bit(1))))
+        { //instruction is == or > and instruction is >=
+            return new Bit(1); //branch condition is true
+
+        }else if(currentInstruction.getBit(4 + 16).equals(new Bit(0)) && currentInstruction.getBit(5 + 16).equals(new Bit(0)) 
+        && !comparison[0].equals(new Bit(1))
+        && !comparison[1].equals(new Bit(1)))
+        { //instruction bits specify not equal and comparison bits aren't [1,1] (equal)
+            return new Bit(1); //branch condition is true
+
         }else{
+            System.out.println();
+            branch = false;
+            PC = PC.plus(2);
             return new Bit(0); //branch condition is false
         }
     }
