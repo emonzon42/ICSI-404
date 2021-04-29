@@ -9,6 +9,9 @@ public class Computer {
     private Longword currentInstruction; //current instruction
     private Longword op1, op2; //holds operations retrieved from registers
 
+    private boolean jump, compare, branch; //alternate instructions for storing value
+    private Bit comparison[]; //bits to hold the value of comparison
+
     public Computer(){ //constructor
         mem = new Memory();
         onoff = new Bit(1);
@@ -18,6 +21,7 @@ public class Computer {
             reg[i] = new Longword();
         op1 = new Longword();
         op2 = new Longword();
+        comparison = new Bit[]{new Bit(),new Bit()};
     }
 
     public Bit status(){ //returns a bit representing whether the computer is on or off
@@ -64,10 +68,18 @@ public class Computer {
         mem.write(new Longword(bitIndex), temp);
     }
 
+    public void assemble(String[] commands){
+        try {
+            preload(Assembler.assemble(commands));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     public void fetch(){ //fetches instruction from memory
         System.out.print("Fetching: ");
         currentInstruction = mem.read(PC);
-        PC = PC.plus(new Longword(2)); //increments PC by 2
+        PC = PC.plus(2); //increments PC by 2
     }
 
     public Bit[] decode(){ //decodes the instruction for the register numbers 
@@ -95,12 +107,48 @@ public class Computer {
         }else if (ALU.areEqual(operation,new Bit[]{new Bit(0),new Bit(0),new Bit(1),new Bit(0)})){ //INTERRUPT
             interrupt(currentInstruction.getBit(currentInstruction.LONGWORD_SIZE-1));
             return null;
+        }else if (ALU.areEqual(operation,new Bit[]{new Bit(0),new Bit(0),new Bit(1),new Bit(1)})){ //JUMP
+            return jump();
+        }else if (ALU.areEqual(operation,new Bit[]{new Bit(0),new Bit(1),new Bit(0),new Bit(0)})){ //COMPARE
+            return compare();
+        }else if (ALU.areEqual(operation,new Bit[]{new Bit(0),new Bit(1),new Bit(0),new Bit(1)})){ //BRANCH
+            if (branch().getValue() == 1)
+                return currentInstruction.leftShift(6 + 16).rightShift(6 + 16).extendSignAt(6); //branch value
+            else
+                return null;
         }else{
             return ALU.doOp(operation,op1, op2);
         }
     }
 
-    public void store(){ // stores result in reg[target]    
+    public void store(){ // stores result in reg[target]
+        if (jump){ //sets PC to result of jump
+            PC = result;
+            jump = false;
+            return;
+        }else if(compare){//sets comparison to either 00(!=), 01(>=), 10(>), 11(==)
+
+            if(result.getSigned() > 0){ //Rx > Ry
+                comparison[0] = new Bit(1);
+                comparison[1] = new Bit(0);
+            }else if(result.getSigned() < 0){ //Ry > Rx
+                comparison[0] = new Bit(0);
+                comparison[1] = new Bit(1);
+            }else if(result.getSigned() == 0){ //Rx == Ry
+                comparison[0] = new Bit(1);
+                comparison[1] = new Bit(1);
+            }else{ //Rx != Ry
+                comparison[0] = new Bit(0);
+                comparison[1] = new Bit(0);
+            }
+            compare = false;
+            return;
+        }else if (branch){
+            PC = PC.plus(result);
+            branch = false;
+            return;
+        }
+        
         reg[currentInstruction.leftShift(28).rightShift(28).getSigned()] = result;
     }
 
@@ -122,9 +170,7 @@ public class Computer {
         }
 
         if (value[0].getValue() == 1){ //if value is negative extend the 1
-            for (int i = 0; i < 24; i++) {
-                temp.setBit(i, 1);
-            }
+            temp = temp.extendSignAt(24);
         }
         reg[currentInstruction.leftShift(20).rightShift(28).getSigned()] = temp;
     }
@@ -145,6 +191,28 @@ public class Computer {
         }
         System.out.println();
     }
+
+    private Longword jump(){ //jumps to address specificed in instruction
+        jump = true;
+        
+        return currentInstruction.leftShift(20).rightShift(20); //jump value
+    }
     
+    private Longword compare(){ //compares Rx to Ry specified in instruction
+        compare = true;
+        return currentInstruction.leftShift(24).rightShift(28).minus(currentInstruction.leftShift(28).rightShift(28));
+    }
+
+    private Bit branch(){ //checks whether branch condition is met 
+        if(comparison[0] == currentInstruction.getBit(4 + 16)
+        && comparison[1] == currentInstruction.getBit(5 + 16)){
+            branch = true;
+            PC = PC.minus(2);
+            return new Bit(1); //branch condition is true
+        }else{
+            return new Bit(0); //branch condition is false
+        }
+    }
+
 
 }

@@ -131,6 +131,17 @@ public class Longword {
         return new Longword(this.not().getSigned() + 1);
     }
 
+    public Longword extendSignAt(int index){ // extends sign from bit[index] to first bit in longword
+        if(index > LONGWORD_SIZE)
+        index = LONGWORD_SIZE;
+
+        Longword signExtended = new Longword(this);
+        for (int i = 0; i < index && i < LONGWORD_SIZE; i++) {
+            signExtended.setBit(i, bits[index]);
+        }
+        return signExtended;
+    }
+
     public void copy(Longword l){ // copies the values of the bits from another longword into this one
         for (int i = 0; i < LONGWORD_SIZE; i++) {
             bits[i] = new Bit(l.getBit(i).getValue());
@@ -149,11 +160,23 @@ public class Longword {
         return RippleAdder.add(this, b);
     }
 
+    public Longword plus(int b){ // adds b to this longword, creating a new longword
+        return plus(new Longword(b));
+    }
+
     public Longword minus(Longword b){ // subtracts b from this longword, creating a new longword
         return RippleAdder.sub(this, b);
     }
 
+    public Longword minus(int b){ // subtracts b from this longword, creating a new longword
+        return minus(new Longword(b));
+    }
+
     public Longword times(Longword b){ // multiplies this longword times b, creating a new longword
         return Multiplier.multiply(this, b);
+    }
+
+    public Longword times(int b){ // multiplies this longword times b, creating a new longword
+        return times(new Longword(b));
     }
 }
