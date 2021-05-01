@@ -37,6 +37,7 @@ public class Computer {
     }
 
     public void run(){ //runs the computer until signalled off
+        System.out.println();
         while (turnedOn()) {
             fetch();
             Bit[] op = decode();
@@ -79,14 +80,14 @@ public class Computer {
     }
 
     public void fetch(){ //fetches instruction from memory
-        System.out.print("Fetching: ");
+        System.out.print("Fetching ("+PC.getSigned()+"): ");
         currentInstruction = mem.read(PC).rightShift(16);
         PC = PC.plus(2); //increments PC by 2
     }
 
     public Bit[] decode(){ //decodes the instruction for the register numbers 
                         //and stores whats in reg[source1] and reg[source2] to op1 and op2
-        System.out.println(currentInstruction);
+        System.out.println(currentInstruction.toString().substring(20));
 
         Bit[] opcode = new Bit[]{currentInstruction.getBit(0 + 16), // i + 16 skips the first 16 bits as the values would be 0s
             currentInstruction.getBit(1 + 16),
@@ -133,7 +134,6 @@ public class Computer {
             jump = false;
             return;
         }else if(compare){//sets comparison to either 00(!=), 01(>=), 10(>), 11(==)
-
             if(result.getSigned() > 0){ //Rx > Ry
                 comparison[0] = new Bit(1);
                 comparison[1] = new Bit(0);
@@ -160,6 +160,7 @@ public class Computer {
 
     private void halt(){ //turns off the computer
         System.out.println("HALTED");
+        System.out.println();
         onoff.set(0);
     }
     
@@ -200,13 +201,13 @@ public class Computer {
 
     private Longword jump(){ //jumps to address specificed in instruction
         jump = true;
-        System.out.println("Jumping from address " + PC.getSigned() + " to " + currentInstruction.leftShift(20).rightShift(20).getSigned());
+        System.out.println("Jumping from address " + (PC.getSigned()-2) + " to " + currentInstruction.leftShift(20).rightShift(20).getSigned());
         return currentInstruction.leftShift(20).rightShift(20); //jump value
     }
 
     private Longword compare(){ //compares Rx to Ry specified in instruction
         compare = true;
-        return currentInstruction.leftShift(24).rightShift(28).minus(currentInstruction.leftShift(28).rightShift(28));
+        return reg[currentInstruction.leftShift(24).rightShift(28).getSigned()].minus(reg[currentInstruction.leftShift(28).rightShift(28).getSigned()]);
     }
 
     private Bit branch(){ //checks whether branch condition is met 
@@ -225,15 +226,13 @@ public class Computer {
         { //comparison is == or > and instruction is >=
             return new Bit(1); //branch condition is true
 
-        } if(((currentInstruction.getBit(4 + 16).equals(new Bit(1)) && currentInstruction.getBit(5 + 16).equals(new Bit(1))) 
-        || currentInstruction.getBit(4 + 16).equals(new Bit(1)) && currentInstruction.getBit(5 + 16).equals(new Bit(0)) )
-        && (comparison[0].equals(new Bit(0)) && comparison[1].equals(new Bit(1))))
-        { //instruction is == or > and instruction is >=
+        } if(((currentInstruction.getBit(4 + 16).equals(new Bit(1)) && currentInstruction.getBit(5 + 16).equals(new Bit(0)) )
+        && (comparison[0].equals(new Bit(0)) && comparison[1].equals(new Bit(1)))))
+        { //instruction is > and comparison is >=
             return new Bit(1); //branch condition is true
 
         }else if(currentInstruction.getBit(4 + 16).equals(new Bit(0)) && currentInstruction.getBit(5 + 16).equals(new Bit(0)) 
-        && !comparison[0].equals(new Bit(1))
-        && !comparison[1].equals(new Bit(1)))
+        && !ALU.areEqual(comparison, new Bit[]{new Bit(1),new Bit(1)}))
         { //instruction bits specify not equal and comparison bits aren't [1,1] (equal)
             return new Bit(1); //branch condition is true
 
@@ -252,21 +251,22 @@ public class Computer {
 
                 if(currentInstruction.getBit(5 + 16).getValue() == 0){ //push
                     mem.write(SP, reg[currentInstruction.leftShift(28).rightShift(28).getSigned()]);
-                    SP.minus(4);
+                    SP.copy(SP.minus(4));
                 }else{ //pop
+                    SP.copy(SP.plus(4));
                     reg[currentInstruction.leftShift(28).rightShift(28).getSigned()] = mem.read(SP);
-                    SP.plus(4);
                 }
                 return;
             case 1: //call-return
 
                 if(currentInstruction.getBit(5 + 16).getValue() == 0){ //call
-                    mem.write(SP,mem.read(PC));
+                    mem.write(SP,PC);
                     PC.copy(currentInstruction.leftShift(22).rightShift(22));
-                    SP.minus(4);
+                    SP.copy(SP.minus(4));
                 }else{ //return
+                    SP.copy(SP.plus(4));
                     PC.copy(mem.read(SP));
-                    SP.plus(4);
+                    
                 }
                 return;
             default:

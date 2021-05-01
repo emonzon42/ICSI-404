@@ -1,7 +1,7 @@
 import java.util.ArrayList;
 
 public class Assembler {
-    
+
     public static String[] assemble(String[] commands) throws Exception{ //returns a string array of instructions in the format "0000 0000 0000 0000"
         ArrayList<String> bitCommands = new ArrayList<String>();
         for (String command : commands) {
@@ -179,7 +179,6 @@ public class Assembler {
                 break;
             default: //RETURN
                 sb.append("1100 0000 0000");
-
             break;
         }
         return sb.toString();
@@ -376,7 +375,7 @@ public class Assembler {
             throw new Exception("INVALID NUMBER @ "+ num);
         } else if (num < 0) {
             sb = new StringBuilder(Long.toBinaryString(num));
-            sb.delete(0, sb.length()-4);
+            sb.delete(0, sb.length()-12);
         } else {
             sb = new StringBuilder(Integer.toBinaryString(num));
         }
