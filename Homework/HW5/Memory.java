@@ -1,7 +1,7 @@
 public class Memory {
 
-    public final short MEM_SIZE = 1024; //memory size
-    public final short BLOCK_SIZE = 16; //size of blocks in memory
+    public final short MEM_SIZE = 8192; //memory size (1024 bytes)
+    public final short BLOCK_SIZE = 8; //size of a byte in memory
     private Bit[] mem; //memory
 
     public Memory(){ //constructor, sets all bits to 0

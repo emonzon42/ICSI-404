@@ -1,3 +1,5 @@
+import java.util.Arrays;
+
 public class Computer {
     
     private Bit onoff; // bit to represent whether computer is on or off
@@ -50,10 +52,11 @@ public class Computer {
     public void preload(String[] bits, int bitIndex){ //preloads bits into memory starting at bitIndex
         Longword temp = new Longword();
         byte index = 0;
+       System.out.println("Commands in memory: " + Arrays.toString(bits));
 
         for (int i = 0; i < bits.length; i++) {
             for (char bit : bits[i].toCharArray()) {
-                temp.setBit(index + 16, bit-48); // bit - 48 bc 0 in ascii is 48
+                temp.setBit(index, bit-48); // bit - 48 bc 0 in ascii is 48
                 index++;
             }
             if(bitIndex == mem.capacity())
@@ -69,12 +72,13 @@ public class Computer {
     }
 
     public void assemble(String[] commands) throws Exception{
+        System.out.println("Input commands: " + Arrays.toString(commands));
         preload(Assembler.assemble(commands));
     }
 
     public void fetch(){ //fetches instruction from memory
         System.out.print("Fetching: ");
-        currentInstruction = mem.read(PC);
+        currentInstruction = mem.read(PC).rightShift(16);
         PC = PC.plus(2); //increments PC by 2
     }
 
@@ -182,8 +186,8 @@ public class Computer {
                 regnum++;
             }
         }else if (type.getValue() == 1){ //print all 1024 bytes from memory
-            for (int i = 0; i < mem.capacity(); i+=2) {
-                System.out.println("Block "+((i/2)+1)+": "+ mem.read(new Longword(i)));
+            for (int i = 0; i < mem.capacity(); i+=4) {
+                System.out.println("Bytes "+(i) +"-"+(i+3)+": "+ mem.read(new Longword(i)));
             }
         }
         System.out.println();
