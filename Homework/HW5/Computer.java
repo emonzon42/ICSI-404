@@ -137,15 +137,15 @@ public class Computer {
             if(result.getSigned() > 0){ //Rx > Ry
                 comparison[0] = new Bit(1);
                 comparison[1] = new Bit(0);
-            }else if(result.getSigned() < 0){ //Ry > Rx
+            }else if(result.getSigned() < 0){ //Ry > Rx -> Rx != Ry
                 comparison[0] = new Bit(0);
-                comparison[1] = new Bit(1);
+                comparison[1] = new Bit(0);
             }else if(result.getSigned() == 0){ //Rx == Ry
                 comparison[0] = new Bit(1);
                 comparison[1] = new Bit(1);
-            }else{ //Rx != Ry
+            }else{ //Rx >= Ry
                 comparison[0] = new Bit(0);
-                comparison[1] = new Bit(0);
+                comparison[1] = new Bit(1);
             }
             compare = false;
             return;

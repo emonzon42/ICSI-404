@@ -82,7 +82,7 @@ public class cpu_test3 {
                 "MULTIPLY R0 r1 R2 ",
                 "MOVE r3 69",
                 "SUBTRACT R0 R2 R7 ",
-                "COMPARE R7 R0", //10
+                "COMPARE R0 R7", //10
                 "BGT 6", //12
                 "JUMP 12", //infinite loop if above cond is false
                 "HALT", 
