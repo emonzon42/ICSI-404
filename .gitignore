@@ -5,6 +5,9 @@
 ~$*
 .vscode
 
+#Binary
+*.class
+
 #Alias folder
 _back
 
