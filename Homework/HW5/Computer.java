@@ -5,6 +5,7 @@ public class Computer {
     private Bit onoff; // bit to represent whether computer is on or off
     private Memory mem; //computer memory
     private Longword PC; //program counter
+    private Longword SP; //stack pointer
     private Longword[] reg; //the registers
     
     private Longword result; //result of operation
@@ -18,6 +19,7 @@ public class Computer {
         mem = new Memory();
         onoff = new Bit(1);
         PC = new Longword();
+        SP = new Longword(1020);
         reg = new Longword[16];
         for (int i = 0; i < reg.length; i++)
             reg[i] = new Longword();
@@ -113,10 +115,13 @@ public class Computer {
             return compare();
         }else if (ALU.areEqual(operation,new Bit[]{new Bit(0),new Bit(1),new Bit(0),new Bit(1)})){ //BRANCH
             if (branch().getValue() == 1){
-                System.out.println(": Jumping from address " + PC.getSigned() + " to " + PC.plus(currentInstruction.leftShift(6 + 16).rightShift(6 + 16).extendSignAt(6 + 16)).getSigned());
+                System.out.println(": Jumping from address " + PC.getSigned() + " to " + PC.plus((currentInstruction.leftShift(6 + 16).rightShift(6 + 16)).extendSignAt(6 + 16)).getSigned());
                 return currentInstruction.leftShift(6 + 16).rightShift(6 + 16).extendSignAt(6 + 16); //branch value
             }else
                 return null;
+        }else if (ALU.areEqual(operation,new Bit[]{new Bit(0),new Bit(1),new Bit(1),new Bit(0)})){ //STACK
+            stack();
+            return null;
         }else{
             return ALU.doOp(operation,op1, op2);
         }
@@ -124,7 +129,7 @@ public class Computer {
 
     public void store(){ // stores result in reg[target]
         if (jump){ //sets PC to result of jump
-            PC = result;
+            PC.copy(result);
             jump = false;
             return;
         }else if(compare){//sets comparison to either 00(!=), 01(>=), 10(>), 11(==)
@@ -195,7 +200,7 @@ public class Computer {
 
     private Longword jump(){ //jumps to address specificed in instruction
         jump = true;
-        System.out.println("Jumping from address " + PC.getSigned() + " to " + currentInstruction.leftShift(21).rightShift(21).getSigned());
+        System.out.println("Jumping from address " + PC.getSigned() + " to " + currentInstruction.leftShift(20).rightShift(20).getSigned());
         return currentInstruction.leftShift(20).rightShift(20); //jump value
     }
 
@@ -240,5 +245,33 @@ public class Computer {
         }
     }
 
+    private void stack(){ //stack instructions: push/pop/call/return
+        
+        switch (currentInstruction.getBit(4 + 16).getValue()){
+            case 0: //push-pop
+
+                if(currentInstruction.getBit(5 + 16).getValue() == 0){ //push
+                    mem.write(SP, reg[currentInstruction.leftShift(28).rightShift(28).getSigned()]);
+                    SP.minus(4);
+                }else{ //pop
+                    reg[currentInstruction.leftShift(28).rightShift(28).getSigned()] = mem.read(SP);
+                    SP.plus(4);
+                }
+                return;
+            case 1: //call-return
+
+                if(currentInstruction.getBit(5 + 16).getValue() == 0){ //call
+                    mem.write(SP,mem.read(PC));
+                    PC.copy(currentInstruction.leftShift(22).rightShift(22));
+                    SP.minus(4);
+                }else{ //return
+                    PC.copy(mem.read(SP));
+                    SP.plus(4);
+                }
+                return;
+            default:
+                break;  
+        }
+    }
 
 }

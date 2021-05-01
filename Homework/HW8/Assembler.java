@@ -16,8 +16,14 @@ public class Assembler {
                 addToList(jump(keys),bitCommands);
             }else if (keys[0].equalsIgnoreCase("COMPARE")) {
                 addToList(compare(keys),bitCommands);
-            }else if (keys[0].equalsIgnoreCase("STACK")) {
-                addToList(stack(keys),bitCommands);
+            }else if (keys[0].equalsIgnoreCase("PUSH")) {
+                addToList(stack(keys,1),bitCommands);
+            }else if (keys[0].equalsIgnoreCase("POP")) {
+                addToList(stack(keys,2),bitCommands);
+            }else if (keys[0].equalsIgnoreCase("CALL")) {
+                addToList(stack(keys,3),bitCommands);
+            }else if (keys[0].equalsIgnoreCase("RETURN")) {
+                addToList(stack(keys,4),bitCommands);
             }else if (keys[0].equalsIgnoreCase("MULTIPLY")) {
                 addToList(multiply(keys),bitCommands);
             }else if (keys[0].equalsIgnoreCase("AND")) {
@@ -118,7 +124,7 @@ public class Assembler {
         return sb.toString();
     }
 
-    private static String branch(String[] keys, int type) throws Exception{ //branch instruction
+    private static String branch(String[] keys, int type) throws Exception{ //branch instructions
         if (keys.length != 2)
             throw new Exception("INVALID NO. OF KEYS");
 
@@ -140,16 +146,42 @@ public class Assembler {
                 sb.append("00");
                 break;
         }
-        sb.append(" ");
         sb.append(numToBinary(Integer.parseInt(keys[1])).substring(2)); //value to jump
 
         return sb.toString();
     }
 
-    private static String stack(String[] keys) throws Exception{ //stack instruction
-        StringBuilder sb = new StringBuilder();
-        //TODO: Assignment 10
+    private static String stack(String[] keys, int type) throws Exception{ //stack instructions
+        if (type != 4 && keys.length != 2 || type == 4 && keys.length != 1)
+            throw new Exception("INVALID NO. OF KEYS");
 
+        StringBuilder sb = new StringBuilder();
+        sb.append("0110"); //stack
+        sb.append(" ");
+        switch (type) {
+            case 1: //PUSH
+                sb.append("0000");
+                sb.append(" ");
+                sb.append("0000");
+                sb.append(" ");
+                sb.append(registerNumber(keys[1]));
+                break;
+            case 2: //POP
+                sb.append("0100");
+                sb.append(" ");
+                sb.append("0000");
+                sb.append(" ");
+                sb.append(registerNumber(keys[1]));
+                break;
+            case 3: //CALL
+                sb.append("10");
+                sb.append(numToBinary(Integer.parseInt(keys[1])).substring(2));
+                break;
+            default: //RETURN
+                sb.append("1100 0000 0000");
+
+            break;
+        }
         return sb.toString();
     }
 
